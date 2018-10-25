@@ -1,0 +1,10 @@
+topic: ~SchoolDialog()
+language: enu
+
+
+u:(Why are you late?) I was at a party yesterday. So I had a hangover this morning and overslept. Sorry!
+
+u:(Are you ready?) yes I'm ready for school!
+
+u: (Who knows the anwser to this?) I do. 
+$onStopped=1

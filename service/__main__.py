@@ -22,7 +22,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route("/faces", methods=["POST"])
+@app.route("/find-faces", methods=["POST"])
 def faces():
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -49,7 +49,7 @@ def faces():
         })
 
 
-@app.route('/calculate', methods=['POST'])
+@app.route('/find-formula', methods=['POST'])
 def calculate():
     # check if the post request has the file part
     if 'file' not in request.files:

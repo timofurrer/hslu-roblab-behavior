@@ -113,7 +113,7 @@ def move_to_person(robot, camera, criteria=lambda x: x["joy"] >= 2):
     print("Got remaining distances:", remaining_forward_distance, remaining_side_distance)
 
     # adding half a meter to the remaining forward distance, so it finds the entrance
-    remaining_forward_distance += remaining_forward_distance  * 1 / 4
+    remaining_forward_distance += remaining_forward_distance * 1 / 4
 
     # subtracting a meter to the remaining side distance, so it doesn't collide with student
     remaining_side_distance -= 1.2

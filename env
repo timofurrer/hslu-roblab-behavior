@@ -1,0 +1,7 @@
+source ./naoqi_env
+
+if [ ! -f creds.json ]; then
+    echo "Add google credentials to creds.json file"
+fi
+
+export GOOGLE_APPLICATION_CREDENTIALS=creds.json

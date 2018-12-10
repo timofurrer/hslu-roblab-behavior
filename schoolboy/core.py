@@ -1,6 +1,7 @@
+import sys
 import logging
 
-from transitions import Machine
+from transitions.extensions import GraphMachine as Machine
 
 from schoolboy.camera import Camera
 
@@ -34,11 +35,14 @@ class SchoolBoy(object):
 
     def __init__(self, robot):
         self.robot = robot
-        self.camera = Camera(robot)
+        self.camera = None
 
-        # disable external collision protection
-        # because the rows of tables are too narrow
-        robot.ALMotion.setExternalCollisionProtectionEnabled("All", False)
+        if robot is not None:
+            self.camera = Camera(robot)
+
+            # disable external collision protection
+            # because the rows of tables are too narrow
+            robot.ALMotion.setExternalCollisionProtectionEnabled("All", False)
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -93,7 +97,7 @@ class SchoolBoy(object):
                 trigger="fail",
                 source=self.STATES,
                 dest="error",
-                after=self.__error
+                after=self.__on_error
         )
 
     def __on_error(self, event):
@@ -101,7 +105,6 @@ class SchoolBoy(object):
 
 
 if __name__ == "__main__":
-    # Exploratory state machine testing
+    # Generate FSM graph
     boy = SchoolBoy(None)
-    boy.talk_to_teacher()
-    print(boy.state)
+    boy.state_machine.get_graph().draw(sys.argv[1], prog="dot")

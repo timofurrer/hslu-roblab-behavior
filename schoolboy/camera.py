@@ -1,9 +1,6 @@
 import os
-import time
 import uuid
 import logging
-
-import qi
 
 from .utils import download_file_from_pepper
 

@@ -12,11 +12,7 @@ from naoqi import ALProxy
 def moving_to_person(schoolboy):
     pass
 
-# configure logging
-logging.basicConfig(level=logging.INFO)
-
 #: Holds the name of the Pepper
-PEPPER_NAME = "Porter"
 SERVICE_URL = "http://localhost:5000"
 
 
@@ -131,118 +127,5 @@ def move_to_person(robot, camera, criteria=lambda x: x["joy"] >= 2):
     time.sleep(5)
 
 
-def move_along_side(robot, camera):
-    robot.ALMotion.setAngles("HeadYaw", 0.8 * SCHOOL_ORIENTATION, 0.3)
-    robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
-
-    def get_head_angle():
-        return robot.ALMotion.getAngles("HeadYaw", False)[0] * (180 / math.pi)
-
-    def set_head_angle(angle):
-        robot.ALMotion.setAngles("HeadYaw", angle * (math.pi / 180), 0.1)
-        robot.ALMotion.setAngles("HeadPitch", 0, 1)
-
-    while abs(get_head_angle() - 90) > 2.0:
-        st = time.time()
-        camera.take_picture("/tmp/picture_faces.jpg", resolution=3)
-        faces = see_faces("/tmp/picture_faces.jpg")
-        print(faces)
-        head_angle = robot.ALMotion.getAngles("HeadYaw", False)[0] * (180 / math.pi)
-        # # headwear_face = next((x for x in faces if x["headwear"] >= 2), None)
-        headwear_face = next((x for x in faces if x["joy"] >= 2), None)
-        # headwear_face = faces[0]
-        if not headwear_face:
-            robot.ALTextToSpeech.say("Extra head rotation, because I like it! Fock yeah!")
-            set_head_angle(head_angle + (10.0 if head_angle > 0 else -10.0))
-            continue
-
-        print("Took {} seconds".format(time.time() - st))
-        set_head_angle(headwear_face["pan"] * -1)
-        robot.ALMotion.moveTo(0.5, 0, 0)
-
-    print("Stopped because", abs(get_head_angle() - 90))
-    rotate(robot, 90 * SCHOOL_ORIENTATION)
-    robot.ALMotion.setAngles("HeadYaw", 0.0, 0.3)
-    robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
-    robot.ALAnimatedSpeech.say("Can I sit next to you?")
-    time.sleep(5)
-
-
-def move_towards_person(robot, camera):
-    robot.ALMotion.setAngles("HeadYaw", 0.0, 0.3)
-    robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
-    robot.ALMotion.moveTo(0.5, 0, 0)
-
-    close_to_person = False
-    while not close_to_person:
-        camera.take_picture("/tmp/picture_faces.jpg", resolution=3)
-        faces = see_faces("/tmp/picture_faces.jpg")
-
-        print(faces)
-        face = next((x for x in faces if abs(x["pan"]) <= 0.5), None)
-        print("took face", face)
-        if face is None:
-            continue
-
-        head_poly_area = calc_poly_area(
-                [x[0] for x in face["bounding_poly"]],
-                [y[1] for y in face["bounding_poly"]]
-        )
-
-        print("Head Poly Area", head_poly_area)
-        if 40000 < head_poly_area < 120000:
-            close_to_person = True
-        else:
-            robot.ALMotion.moveTo(0.5, 0, 0)
-
-
 def main():
-    config = PepperConfiguration(PEPPER_NAME)
-    robot = Robot(config)
-    camera = Camera(robot)
-
-    robot.ALMotion.setExternalCollisionProtectionEnabled("All", False)
-
     move_to_person(robot, camera, criteria=lambda x: x["tilt"] <= -2)
-    # move_along_side(robot, camera)
-    # move_towards_person(robot, camera)
-
-    # exit()
-
-    # move head to initial position
-    start_pos_yaw = 0.0
-    max_rot_yaw = 1.4
-    yaw_move_interval = 0.2
-    robot.ALMotion.setAngles("HeadYaw", start_pos_yaw, 0.3)
-    robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
-
-    result = None
-    while not result and start_pos_yaw <= max_rot_yaw:
-        print("Searching for formula, moving head 10 degrees to the left from {} to {}".format(
-            start_pos_yaw, start_pos_yaw + yaw_move_interval))
-        start_pos_yaw += yaw_move_interval
-        robot.ALMotion.setAngles("HeadYaw", start_pos_yaw, 0.3)
-
-        camera.take_picture("/tmp/picture_{}.jpg".format(start_pos_yaw))
-        calc_result = calculate("/tmp/picture_{}.jpg".format(start_pos_yaw))
-        print("Got result {}".format(calc_result))
-        if calc_result["success"]:
-            match = re.search(r"(\([0-9+/*()-]+\))", calc_result["formula"])
-            if match:
-                logging.info("Extracted formula: '%s'", match.group(0))
-                result = eval(match.group(0))
-            else:
-                pass
-                # print("Formula {} didn't match".format(calc_result["formula"]))
-
-    if result is None:
-        logging.info("EMERGENCY, couldn't find a formula. Dying")
-        robot.ALAnimatedSpeech.say("EMERGENCY, couldn't find a formula. Dying")
-        exit(1)
-
-    logging.info("Calculated result '%s'", result)
-    robot.ALAnimatedSpeech.say("I calculated {}".format(result))
-
-
-if __name__ == "__main__":
-    main()

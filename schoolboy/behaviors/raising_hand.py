@@ -1,10 +1,12 @@
+import logging
+
 from naoqi import ALProxy
 
-def raising_hand(schoolboy):
+def raising_hand(schoolboy, solution):
     # Choregraphe bezier export in Python.
-    names = list()
-    times = list()
-    keys = list()
+    names = []
+    times = []
+    keys = []
 
     names.append("HeadPitch")
     times.append([0, 2.24])
@@ -83,9 +85,9 @@ def raising_hand(schoolboy):
         # motion = ALProxy("ALMotion", IP, 9559)
         motion = ALProxy("ALMotion")
         motion.angleInterpolationBezier(names, times, keys)
-    except:
-        print("Oh, I can't raise my hand!")
-#    except BaseException, err:
-#        print
-#        err
-
+    except Exception as exc:
+        fail_reason = "Oh, I can't raise my hand! Because: {}".format(exc)
+        logging.error(fail_reason)
+        schoolboy.fail(reason=fail_reason)
+    else:
+        schoolboy.say_solution(solution)

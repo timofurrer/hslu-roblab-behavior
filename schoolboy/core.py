@@ -1,3 +1,5 @@
+import logging
+
 from transitions import Machine
 
 from schoolboy.camera import Camera
@@ -12,6 +14,9 @@ from schoolboy.behaviors.raising_hand import raising_hand
 from schoolboy.behaviors.saying_solution import saying_solution
 from schoolboy.behaviors.dancing import dancing
 
+# configure logging
+logging.basicConfig(level=logging.INFO)
+
 
 class SchoolBoy(object):
     STATES = [
@@ -23,7 +28,8 @@ class SchoolBoy(object):
         "evaluating_formula",
         "raising_hand",
         "saying_solution",
-        "dancing"
+        "dancing",
+        "error"
     ]
 
     def __init__(self, robot):
@@ -83,6 +89,16 @@ class SchoolBoy(object):
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
         )
+        self.state_machine.add_transition(
+                trigger="fail",
+                source=self.STATES,
+                dest="error",
+                after=self.__error
+        )
+
+    def __on_error(self, event):
+        logging.error("Got into Error state with event: '%s'", str(event))
+
 
 if __name__ == "__main__":
     # Exploratory state machine testing

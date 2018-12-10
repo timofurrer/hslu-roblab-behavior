@@ -6,7 +6,7 @@
 __pycache__/
 
 # mypy
-schoolboy/.mypy_cache/
+.mypy_cache/
 
 # virtualenv
 venv/

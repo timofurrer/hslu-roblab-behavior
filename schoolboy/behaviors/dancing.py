@@ -1,3 +1,5 @@
+import logging
+
 from naoqi import ALProxy
 
 def dancing(schoolboy):
@@ -130,7 +132,9 @@ def dancing(schoolboy):
         motion = ALProxy("ALMotion")
         for i in range[0, 5]:
             motion.angleInterpolationBezier(names, times, keys)
-    except:
-        print("I can't dance!")
-#    except BaseException, err:
-#        err
+    except Exception as exc:
+        fail_reason = "Unable to dance, because: '{}'".format(exc)
+        logging.error(fail_reason)
+        schoolboy.fail(reason=fail_reason)
+    else:
+        schoolboy.rest()

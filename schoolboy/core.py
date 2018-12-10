@@ -14,6 +14,7 @@ from schoolboy.behaviors.evaluating_formula import evaluating_formula
 from schoolboy.behaviors.raising_hand import raising_hand
 from schoolboy.behaviors.saying_solution import saying_solution
 from schoolboy.behaviors.dancing import dancing
+from schoolboy.behaviors.resting import resting
 
 # configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +31,7 @@ class SchoolBoy(object):
         "raising_hand",
         "saying_solution",
         "dancing",
+        "resting",
         "error"
     ]
 
@@ -92,6 +94,12 @@ class SchoolBoy(object):
                 source="saying_solution",
                 dest="dancing",
                 after=lambda *args, **kwargs: dancing(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+                trigger="rest",
+                source="dancing",
+                dest="resting",
+                after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
                 trigger="fail",

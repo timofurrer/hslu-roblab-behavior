@@ -35,8 +35,9 @@ class SchoolBoy(object):
         "error"
     ]
 
-    def __init__(self, robot):
+    def __init__(self, robot, room_orientation=1):
         self.robot = robot
+        self.room_orientation = room_orientation
         self.camera = None
 
         if robot is not None:

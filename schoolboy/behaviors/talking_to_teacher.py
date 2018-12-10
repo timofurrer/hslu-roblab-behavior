@@ -1,2 +1,5 @@
+import logging
+
+
 def talking_to_teacher(schoolboy):
-    pass
+    logging.info("Talking to teacher ...")

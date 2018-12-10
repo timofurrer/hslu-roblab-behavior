@@ -12,7 +12,7 @@ def find_formula(local_image_path):
     return response.json()
 
 
-def see_faces(local_image_path):
+def find_faces(local_image_path):
     response = requests.post(
             SERVICE_URL + "/find-faces",
             files={"file": open(local_image_path, "rb")}

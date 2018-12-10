@@ -19,6 +19,10 @@ from schoolboy.behaviors.resting import resting
 # configure logging
 logging.basicConfig(level=logging.INFO)
 
+# school room orientations
+SCHOOL_ON_HIS_RIGHT = -1
+SCHOOL_ON_HIS_LEFT = 1
+
 
 class SchoolBoy(object):
     STATES = [
@@ -35,7 +39,7 @@ class SchoolBoy(object):
         "error"
     ]
 
-    def __init__(self, robot, room_orientation=1):
+    def __init__(self, robot, room_orientation=SCHOOL_ON_HIS_RIGHT):
         self.robot = robot
         self.room_orientation = room_orientation
         self.camera = None

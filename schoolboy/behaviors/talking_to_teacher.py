@@ -28,7 +28,7 @@ def talking_to_teacher(schoolboy):
     recognizer = schoolboy.robot.ALSpeechRecognition
     recognizer.setLanguage("English")
 
-    schoolboy.robot.ALAnimatedSpeech.say("Hello, everyone!")
+    schoolboy.robot.ALAnimatedSpeech.say("Hello everyone!")
 
     # setup subscriptions
     memory = schoolboy.robot.ALMemory

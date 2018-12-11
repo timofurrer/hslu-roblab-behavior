@@ -27,8 +27,19 @@ def moving_to_person(schoolboy, forward_distance, side_distance):
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.0, 0.7)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.7)
     logging.info("Moving into bank: %.4f", side_distance)
-    schoolboy.robot.ALMotion.moveTo(side_distance, 0, 0)
 
+    # do not move side distance, but actually navigate with the front sonar
+    sonar_front = float("inf")
+    while sonar_front >= 0.5:
+        sonar_front = schoolboy.robot.ALMemory.getData(
+                "Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+        logging.info("Got sonar value of: %f", sonar_front)
+        if sonar_front < 0.5:
+            break
+
+        schoolboy.robot.ALMotion.moveTo(0.15, 0, 0)
+
+    # schoolboy.robot.ALMotion.moveTo(side_distance, 0, 0)
     schoolboy.robot.ALVisualCompass.moveTo(
             0, 0, theta=math.radians(90 * schoolboy.room_orientation))
 

@@ -1,5 +1,6 @@
 import logging
 
+
 from naoqi import ALProxy
 
 def raising_hand(schoolboy, solution):

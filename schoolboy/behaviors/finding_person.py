@@ -2,6 +2,8 @@ import math
 import time
 import logging
 
+from schoolboy.service import find_faces
+
 
 def calc_distances(moved_distance, first_angle, second_angle):
     """Calculate the distances in X and Y for two given angles and

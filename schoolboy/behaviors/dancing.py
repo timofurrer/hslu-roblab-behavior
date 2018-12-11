@@ -2,6 +2,7 @@ import logging
 
 from naoqi import ALProxy
 
+
 def dancing(schoolboy):
     # Choregraphe bezier export in Python.
     names = list()

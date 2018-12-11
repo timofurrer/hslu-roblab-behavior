@@ -1,7 +1,15 @@
+import time
 import logging
+import functools
 
 
-from naoqi import ALProxy
+VOCABULARY = [
+    "yes"
+]
+
+
+CALLED = False
+
 
 def raising_hand(schoolboy, solution):
     # Choregraphe bezier export in Python.
@@ -84,11 +92,47 @@ def raising_hand(schoolboy, solution):
     try:
         # uncomment the following line and modify the IP if you use this script outside Choregraphe.
         # motion = ALProxy("ALMotion", IP, 9559)
-        motion = ALProxy("ALMotion")
-        motion.angleInterpolationBezier(names, times, keys)
+        schoolboy.robot.ALMotion.angleInterpolationBezier(names, times, keys)
     except Exception as exc:
         fail_reason = "Oh, I can't raise my hand! Because: {}".format(exc)
         logging.error(fail_reason)
         schoolboy.fail(reason=fail_reason)
-    else:
-        schoolboy.say_solution(solution)
+        return
+
+
+    # initiale speech recognition
+    recognizer = schoolboy.robot.ALSpeechRecognition
+    recognizer.setLanguage("English")
+
+    # setup subscriptions
+    memory = schoolboy.robot.ALMemory
+    speech_subscriber = memory.subscriber("WordRecognized")
+    speech_subscriber.signal.connect(
+            functools.partial(speech_detected, schoolboy, recognizer))
+    recognizer.pause(True)
+    recognizer.removeAllContext()
+    recognizer.setVocabulary(VOCABULARY, False)
+    recognizer.pause(False)
+    recognizer.subscribe2("Teacher_Solution")
+
+    while not CALLED:
+        time.sleep(0.5)
+
+    schoolboy.say_solution(solution)
+
+
+def speech_detected(schoolboy, recognizer, *args):
+    global CALLED
+
+    for recognized_voc, accuracy in args:
+        logging.info(
+                "Recognized '%s' with accuracy of %.4f", recognized_voc, accuracy)
+
+        if recognized_voc == "yes" and accuracy > 0.4:
+            CALLED = True
+
+            try:
+                recognizer.unsubscribe("Teacher_Solution")
+            except Exception as e:
+                logging.error("Could not unsubscribe because: '%s'", str(e))
+            return

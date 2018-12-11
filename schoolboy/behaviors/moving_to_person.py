@@ -4,22 +4,35 @@ import logging
 
 
 def moving_to_person(schoolboy, forward_distance, side_distance):
-    logging.info("Moving forward", forward_distance)
+    logging.info("Moving forward: %.4f and to the side: %.4f", forward_distance, side_distance)
+    logging.info("Moving forward: %.4f", forward_distance)
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.0, 0.7)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.7)
     schoolboy.robot.ALMotion.moveTo(forward_distance, 0, 0)
     schoolboy.robot.ALVisualCompass.moveTo(
             0, 0, theta=math.radians(90 * schoolboy.room_orientation))
 
+    sonar_front = float("-inf")
+    while sonar_front <= 1.2:
+        sonar_front = schoolboy.robot.ALMemory.getData(
+                "Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
+        logging.info("Got sonar value of: %f", sonar_front)
+        if sonar_front > 1.2:
+            break
+
+        schoolboy.robot.ALMotion.moveTo(
+                0, -0.15 * schoolboy.room_orientation, 0)
+
     schoolboy.robot.ALTextToSpeech.say("Oh hey! There you are!")
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.0, 0.7)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.7)
-    logging.info("Moving into bank", side_distance)
+    logging.info("Moving into bank: %.4f", side_distance)
     schoolboy.robot.ALMotion.moveTo(side_distance, 0, 0)
+
     schoolboy.robot.ALVisualCompass.moveTo(
             0, 0, theta=math.radians(90 * schoolboy.room_orientation))
 
     # WUAAAT
-    time.sleep(5)
+    time.sleep(2)
 
     schoolboy.find_formula()

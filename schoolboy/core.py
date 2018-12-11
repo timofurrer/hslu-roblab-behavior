@@ -16,9 +16,6 @@ from schoolboy.behaviors.saying_solution import saying_solution
 from schoolboy.behaviors.dancing import dancing
 from schoolboy.behaviors.resting import resting
 
-# configure logging
-logging.basicConfig(level=logging.INFO)
-
 # school room orientations
 SCHOOL_ON_HIS_RIGHT = -1
 SCHOOL_ON_HIS_LEFT = 1
@@ -49,7 +46,9 @@ class SchoolBoy(object):
 
             # disable external collision protection
             # because the rows of tables are too narrow
-            robot.ALMotion.setExternalCollisionProtectionEnabled("All", False)
+            robot.ALMotion.setExternalCollisionProtectionEnabled("All", True)
+            robot.ALMotion.setTangentialSecurityDistance(0.1)
+            robot.ALMotion.setOrthogonalSecurityDistance(0.1)
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -102,7 +101,7 @@ class SchoolBoy(object):
         )
         self.state_machine.add_transition(
                 trigger="rest",
-                source="dancing",
+                source=["saying_solution", "dancing"],
                 dest="resting",
                 after=lambda *args, **kwargs: resting(self, *args, **kwargs)
         )
@@ -113,8 +112,11 @@ class SchoolBoy(object):
                 after=self.__on_error
         )
 
-    def __on_error(self, event):
-        logging.error("Got into Error state with event: '%s'", str(event))
+    def __on_error(self, reason):
+        logging.error("Got into Error state becase: '%s'", reason)
+        self.robot.ALAnimatedSpeech.say("Oh no! What a pitty!")
+        self.robot.ALAnimatedSpeech.say("I'm in an uncomfortable situation and don't know what to do")
+        self.robot.ALAnimatedSpeech.say("I think the reason is that {}".format(reason))
 
 
 if __name__ == "__main__":

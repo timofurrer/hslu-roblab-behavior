@@ -1,3 +1,8 @@
+import math
+import time
+import logging
+import itertools
+
 import paramiko
 
 
@@ -30,3 +35,22 @@ def upload_file_to_pepper(config, local_path, remote_path):
     sftp.put(local_path, remote_path)
     sftp.close()
     ssh.close()
+
+
+def rotate_head_until(robot, predicate):
+    ANGLES = [15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90]
+
+    # move head pitch to middle position
+    robot.ALMotion.setAngles("HeadPitch", 0, 1)
+    robot.ALMotion.setAngles("HeadYaw", 0, 0.1)
+
+    angles_cycle = itertools.cycle(ANGLES)
+    while True:
+        result = predicate()
+        if result:
+            return result
+
+        angle = next(angles_cycle)
+        logging.info("Rotating head angle to %f", angle)
+        robot.ALMotion.setAngles("HeadYaw", math.radians(angle), 0.2)
+        time.sleep(0.5)

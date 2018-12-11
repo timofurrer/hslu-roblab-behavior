@@ -35,7 +35,7 @@ def analyze_faces(camera):
     return faces
 
 
-def finding_person(schoolboy, criteria=lambda x: x["tilt"] <= -2):
+def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
     def get_head_angle():
         return math.degrees(
                 schoolboy.robot.ALMotion.getAngles("HeadYaw", False)[0])
@@ -43,6 +43,10 @@ def finding_person(schoolboy, criteria=lambda x: x["tilt"] <= -2):
     def set_head_angle(angle):
         schoolboy.robot.ALMotion.setAngles("HeadYaw", math.radians(angle), 0.1)
         schoolboy.robot.ALMotion.setAngles("HeadPitch", 0, 1)
+
+    # rotate into room
+    schoolboy.robot.ALVisualCompass.moveTo(
+            0, 0, theta=math.radians(-90 * schoolboy.room_orientation))
 
     # move head to initial position
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.8 * schoolboy.room_orientation, 0.3)
@@ -59,8 +63,16 @@ def finding_person(schoolboy, criteria=lambda x: x["tilt"] <= -2):
     first_angle = matching_face["pan"]
 
     # move a little bit forward
-    moved_distance = 1
+    moved_distance = 1.2
+    sonar_back_start = schoolboy.robot.ALMemory.getData(
+            "Device/SubDeviceList/Platform/Back/Sonar/Sensor/Value")
     schoolboy.robot.ALMotion.moveTo(moved_distance, 0, 0)
+    sonar_back_end = schoolboy.robot.ALMemory.getData(
+            "Device/SubDeviceList/Platform/Back/Sonar/Sensor/Value")
+
+    actual_moved_distance = sonar_back_end - sonar_back_start
+    logging.info("Planned to move %.4fm but sonar says %.4fm",
+                 moved_distance, actual_moved_distance)
     head_angle = get_head_angle()
     set_head_angle(head_angle + (10.0 if head_angle > 0 else -10.0))
 
@@ -76,12 +88,14 @@ def finding_person(schoolboy, criteria=lambda x: x["tilt"] <= -2):
 
     logging.info("Given angles: first=%f second=%f", first_angle, second_angle)
     remaining_forward_distance, remaining_side_distance = calc_distances(
-            moved_distance, first_angle, second_angle)
+            actual_moved_distance, first_angle, second_angle)
     logging.info("Got remaining distances: forward=%f side=%f", remaining_forward_distance, remaining_side_distance)
 
     # adding half a meter to the remaining forward distance, so it finds the entrance
-    remaining_forward_distance += remaining_forward_distance * 1 / 4
+    # remaining_forward_distance += remaining_forward_distance * (1 / 7)
     # subtracting a meter to the remaining side distance, so it doesn't collide with student
-    remaining_side_distance -= 1.2
+    remaining_forward_distance -= 0.75
+    remaining_side_distance -= 2
+    # remaining_side_distance = 2
 
     schoolboy.move_to_person(remaining_forward_distance, remaining_side_distance)

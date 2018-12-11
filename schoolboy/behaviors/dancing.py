@@ -1,7 +1,5 @@
 import logging
 
-from naoqi import ALProxy
-
 
 def dancing(schoolboy):
     # Choregraphe bezier export in Python.
@@ -130,9 +128,8 @@ def dancing(schoolboy):
     try:
         # uncomment the following line and modify the IP if you use this script outside Choregraphe.
         # motion = ALProxy("ALMotion", IP, 9559)
-        motion = ALProxy("ALMotion")
-        for i in range[0, 5]:
-            motion.angleInterpolationBezier(names, times, keys)
+        for i in range(3):
+            schoolboy.robot.ALMotion.angleInterpolationBezier(names, times, keys)
     except Exception as exc:
         fail_reason = "Unable to dance, because: '{}'".format(exc)
         logging.error(fail_reason)

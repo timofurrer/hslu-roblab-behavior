@@ -21,11 +21,6 @@ def main():
 
     schoolboy = SchoolBoy(robot, room_orientation=SCHOOL_ON_HIS_RIGHT)
     schoolboy.talk_to_teacher()
-    # while True:
-        # sonar_front = schoolboy.robot.ALMemory.getData("Device/SubDeviceList/Platform/Front/Sonar/Sensor/Value")
-        # print("SONAR FRONT:", sonar_front)
-        # import time
-        # time.sleep(1)
 
 
 if __name__ == "__main__":

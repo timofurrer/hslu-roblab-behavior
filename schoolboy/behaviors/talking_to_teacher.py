@@ -2,21 +2,20 @@ import time
 import logging
 import functools
 
-VOCABULARY = [
-    "You are late",
-    "happiest",
-    "sleepiest"
-]
-
-IS_SPEAKING = False
-RECO_STATE = 0
-GO_TO_PERSON = None
-
-
+LATE_SENTENCE = "You are late"
 PERSON_CRITERIA = {
     "happiest": lambda x: x["joy"] >= 2,
     "sleepiest": lambda x: x["tilt"] <= -2
 }
+
+VOCABULARY = [
+    LATE_SENTENCE,
+]
+VOCABULARY.extend(PERSON_CRITERIA.keys())
+
+IS_SPEAKING = False
+RECO_STATE = 0
+GO_TO_PERSON = None
 
 
 def talking_to_teacher(schoolboy):
@@ -45,7 +44,7 @@ def talking_to_teacher(schoolboy):
     while GO_TO_PERSON is None:
         time.sleep(0.5)
 
-    schoolboy.find_person(criteria=PERSON_CRITERIA[GO_TO_PERSON])
+    schoolboy.find_person(criteria=GO_TO_PERSON)
 
 
 def speech_detected(schoolboy, recognizer, *args):
@@ -60,21 +59,21 @@ def speech_detected(schoolboy, recognizer, *args):
     for recognized_voc, accuracy in args:
         logging.info("Recognized '%s' with accuracy of %.4f",  recognized_voc, accuracy)
 
-        if RECO_STATE == 0 and recognized_voc == "You are late" and accuracy > 0.4:
+        if RECO_STATE == 0 and recognized_voc == LATE_SENTENCE and accuracy > 0.4:
             IS_SPEAKING = True
             schoolboy.robot.ALAnimatedSpeech.say("I'm so sorry. My Tesla wasn't charged so I had to take the bus")
             IS_SPEAKING = False
             RECO_STATE = 1
             return
 
-        if RECO_STATE == 1 and recognized_voc in {"happiest", "sleepiest"} and accuracy > 0.30:
+        if RECO_STATE == 1 and recognized_voc in PERSON_CRITERIA and accuracy > 0.30:
             IS_SPEAKING = True
             schoolboy.robot.ALAnimatedSpeech.say("Alrighty! I'm going to the {} student".format(
                 recognized_voc))
             IS_SPEAKING = False
 
             RECO_STATE = 2
-            GO_TO_PERSON = recognized_voc
+            GO_TO_PERSON = PERSON_CRITERIA[GO_TO_PERSON]
             try:
                 recognizer.unsubscribe("Teacher")
             except Exception as e:

@@ -7,12 +7,11 @@ VOCABULARY = [
     "yes"
 ]
 
-
+#: flag if the schoolboy was called by the teacher
 CALLED = False
 
 
 def raising_hand(schoolboy, solution):
-    # Choregraphe bezier export in Python.
     names = []
     times = []
     keys = []
@@ -90,8 +89,6 @@ def raising_hand(schoolboy, solution):
     keys.append([[-0.0258008, [3, -0.0133333, 0], [3, 0.746667, 0]], [-0.0258008, [3, -0.746667, 0], [3, 0, 0]]])
 
     try:
-        # uncomment the following line and modify the IP if you use this script outside Choregraphe.
-        # motion = ALProxy("ALMotion", IP, 9559)
         schoolboy.robot.ALMotion.angleInterpolationBezier(names, times, keys)
     except Exception as exc:
         fail_reason = "Oh, I can't raise my hand! Because: {}".format(exc)

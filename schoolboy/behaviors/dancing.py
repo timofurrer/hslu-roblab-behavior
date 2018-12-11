@@ -2,10 +2,9 @@ import logging
 
 
 def dancing(schoolboy):
-    # Choregraphe bezier export in Python.
-    names = list()
-    times = list()
-    keys = list()
+    names = []
+    times = []
+    keys = []
 
     names.append("HeadPitch")
     times.append([0.96, 2.36, 3.16, 3.96])
@@ -126,9 +125,7 @@ def dancing(schoolboy):
                  [-0.781907, [3, -0.266667, 0], [3, 0, 0]]])
 
     try:
-        # uncomment the following line and modify the IP if you use this script outside Choregraphe.
-        # motion = ALProxy("ALMotion", IP, 9559)
-        for i in range(3):
+        for i in range(2):
             schoolboy.robot.ALMotion.angleInterpolationBezier(names, times, keys)
     except Exception as exc:
         fail_reason = "Unable to dance, because: '{}'".format(exc)

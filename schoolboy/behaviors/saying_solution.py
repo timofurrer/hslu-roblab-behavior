@@ -6,6 +6,8 @@ VOCABULARY = [
     "this is correct",
     "this is wrong"
 ]
+
+#: flag if the solution was correct
 SOLUTION_CORRECT = None
 
 

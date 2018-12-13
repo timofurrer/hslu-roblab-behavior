@@ -1,7 +1,9 @@
+import time
 import logging
 
 
 def dancing(schoolboy):
+    time.sleep(1)
     names = []
     times = []
     keys = []

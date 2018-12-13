@@ -31,7 +31,7 @@ def analyze_faces(camera):
     camera.take_picture("/tmp/picture_faces.jpg", resolution=3)
     faces = find_faces("/tmp/picture_faces.jpg")
     logging.debug("Took {} seconds".format(time.time() - st))
-    logging.debug("Faces data: %s", str(faces))
+    logging.info("Faces data: %s", str(faces))
     return faces
 
 
@@ -49,7 +49,7 @@ def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
             0, 0, theta=math.radians(-90 * schoolboy.room_orientation))
 
     # move head to initial position
-    schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.8 * schoolboy.room_orientation, 0.3)
+    schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.5 * schoolboy.room_orientation, 0.3)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
 
     # take first picture
@@ -58,7 +58,7 @@ def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
         faces = analyze_faces(schoolboy.camera)
         matching_face = next((x for x in faces if criteria(x)), None)
         if matching_face is None:
-            schoolboy.robot.ALTextToSpeech.say("Extra head rotation, because I like it! Fock yeah!")
+            # schoolboy.robot.ALTextToSpeech.say("Extra head rotation, because I like it! Fock yeah!")
             set_head_angle(get_head_angle() + (10.0 if get_head_angle() > 0 else -10.0))
     first_angle = matching_face["pan"]
 
@@ -82,7 +82,7 @@ def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
         faces = analyze_faces(schoolboy.camera)
         matching_face = next((x for x in faces if criteria(x)), None)
         if matching_face is None:
-            schoolboy.robot.ALTextToSpeech.say("Extra head rotation, because I like it! Fock yeah!")
+            # schoolboy.robot.ALTextToSpeech.say("Extra head rotation, because I like it! Fock yeah!")
             set_head_angle(get_head_angle() + (10.0 if get_head_angle() > 0 else -10.0))
     second_angle = matching_face["pan"]
 
@@ -94,8 +94,14 @@ def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
     # adding half a meter to the remaining forward distance, so it finds the entrance
     # remaining_forward_distance += remaining_forward_distance * (1 / 7)
     # subtracting a meter to the remaining side distance, so it doesn't collide with student
-    remaining_forward_distance -= 0.75
-    remaining_side_distance -= 2
+
+    remaining_forward_distance = abs(remaining_forward_distance)
+    remaining_side_distance = abs(remaining_side_distance)
+
+    remaining_forward_distance += remaining_forward_distance * (1/4)
+    remaining_side_distance -= 1.5
     # remaining_side_distance = 2
+
+    logging.info("Corrected distances: forward=%f side=%f", remaining_forward_distance, remaining_side_distance)
 
     schoolboy.move_to_person(remaining_forward_distance, remaining_side_distance)

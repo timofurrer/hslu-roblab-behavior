@@ -49,8 +49,8 @@ class SchoolBoy(object):
             # disable external collision protection
             # because the rows of tables are too narrow
             robot.ALMotion.setExternalCollisionProtectionEnabled("All", True)
-            robot.ALMotion.setTangentialSecurityDistance(0.1)
-            robot.ALMotion.setOrthogonalSecurityDistance(0.1)
+            robot.ALMotion.setTangentialSecurityDistance(0.05)
+            robot.ALMotion.setOrthogonalSecurityDistance(0.05)
 
         self.state_machine = Machine(model=self, states=self.STATES, queued=True, initial="start")
         self.state_machine.add_transition(
@@ -127,7 +127,9 @@ class SchoolBoy(object):
         self.robot.ALAnimatedSpeech.say("I think the reason is that {}".format(reason))
 
     def move(self, x, y):
-        return self.robot.ALNavigation.navigateTo(x, y)
+        # return self.robot.ALNavigation.navigateTo(x, y)
+        self.robot.ALMotion.moveTo(x, y, 0)
+        return True
 
 
 if __name__ == "__main__":

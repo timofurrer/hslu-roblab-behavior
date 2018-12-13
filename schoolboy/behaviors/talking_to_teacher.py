@@ -5,7 +5,7 @@ import functools
 LATE_SENTENCE = "You are late"
 PERSON_CRITERIA = {
     "happiest": lambda x: x["joy"] >= 2,
-    "sleepiest": lambda x: x["tilt"] <= -2
+    "sleepiest": lambda x: x["tilt"] <= -10.0
 }
 
 VOCABULARY = [
@@ -19,6 +19,7 @@ GO_TO_PERSON = None
 
 
 def talking_to_teacher(schoolboy):
+    schoolboy.robot.ALMotion.wakeUp()
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.0, 0.3)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.3)
 
@@ -59,21 +60,21 @@ def speech_detected(schoolboy, recognizer, *args):
     for recognized_voc, accuracy in args:
         logging.info("Recognized '%s' with accuracy of %.4f",  recognized_voc, accuracy)
 
-        if RECO_STATE == 0 and recognized_voc == LATE_SENTENCE and accuracy > 0.4:
+        if RECO_STATE == 0 and recognized_voc == LATE_SENTENCE and accuracy > 0.46:
             IS_SPEAKING = True
             schoolboy.robot.ALAnimatedSpeech.say("I'm so sorry. My Tesla wasn't charged so I had to take the bus")
             IS_SPEAKING = False
             RECO_STATE = 1
             return
 
-        if RECO_STATE == 1 and recognized_voc in PERSON_CRITERIA and accuracy > 0.30:
+        if RECO_STATE == 1 and recognized_voc in PERSON_CRITERIA and accuracy > 0.35:
             IS_SPEAKING = True
             schoolboy.robot.ALAnimatedSpeech.say("Alrighty! I'm going to the {} student".format(
                 recognized_voc))
             IS_SPEAKING = False
 
             RECO_STATE = 2
-            GO_TO_PERSON = PERSON_CRITERIA[GO_TO_PERSON]
+            GO_TO_PERSON = PERSON_CRITERIA[recognized_voc]
             try:
                 recognizer.unsubscribe("Teacher")
             except Exception as e:

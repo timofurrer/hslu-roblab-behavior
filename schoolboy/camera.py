@@ -15,6 +15,7 @@ class Camera(object):
 
     def take_picture(self, local_path, resolution=4):
         self.camera.setResolution(resolution)
+        self.camera.setColorSpace(0)
         remote_temp_filename = str(uuid.uuid4()) + ".jpg"
         remote_temp_path = os.path.join(
                 REMOTE_TEMP_FOLDER,

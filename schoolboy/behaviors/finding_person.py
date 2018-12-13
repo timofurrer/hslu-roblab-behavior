@@ -98,7 +98,7 @@ def finding_person(schoolboy, criteria=lambda x: x["joy"] >= 2):
     remaining_forward_distance = abs(remaining_forward_distance)
     remaining_side_distance = abs(remaining_side_distance)
 
-    remaining_forward_distance += remaining_forward_distance * (1/4)
+    # remaining_forward_distance += remaining_forward_distance * (1/4)
     remaining_side_distance -= 1.5
     # remaining_side_distance = 2
 

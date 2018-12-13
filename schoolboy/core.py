@@ -9,6 +9,7 @@ from schoolboy.camera import Camera
 from schoolboy.behaviors.talking_to_teacher import talking_to_teacher
 from schoolboy.behaviors.finding_person import finding_person
 from schoolboy.behaviors.moving_to_person import moving_to_person
+from schoolboy.behaviors.recovering_from_move import recovering_from_move
 from schoolboy.behaviors.finding_formula import finding_formula
 from schoolboy.behaviors.evaluating_formula import evaluating_formula
 from schoolboy.behaviors.raising_hand import raising_hand
@@ -27,6 +28,7 @@ class SchoolBoy(object):
         "talking_to_teacher",
         "finding_person",
         "moving_to_person",
+        "recovering_from_move",
         "finding_formula",
         "evaluating_formula",
         "raising_hand",
@@ -70,8 +72,14 @@ class SchoolBoy(object):
                 after=lambda *args, **kwargs: moving_to_person(self, *args, **kwargs)
         )
         self.state_machine.add_transition(
-                trigger="find_formula",
+                trigger="recover_from_move",
                 source="moving_to_person",
+                dest="recovering_from_move",
+                after=lambda *args, **kwargs: recovering_from_move(self, *args, **kwargs)
+        )
+        self.state_machine.add_transition(
+                trigger="find_formula",
+                source=["moving_to_person", "recovering_from_move"],
                 dest="finding_formula",
                 after=lambda *args, **kwargs: finding_formula(self, *args, **kwargs)
         )
@@ -117,6 +125,9 @@ class SchoolBoy(object):
         self.robot.ALAnimatedSpeech.say("Oh no! What a pitty!")
         self.robot.ALAnimatedSpeech.say("I'm in an uncomfortable situation and don't know what to do")
         self.robot.ALAnimatedSpeech.say("I think the reason is that {}".format(reason))
+
+    def move(self, x, y):
+        return self.robot.ALNavigation.navigateTo(x, y)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,10 @@ def moving_to_person(schoolboy, forward_distance, side_distance):
     logging.info("Moving forward: %.4f", forward_distance)
     schoolboy.robot.ALMotion.setAngles("HeadYaw", 0.0, 0.7)
     schoolboy.robot.ALMotion.setAngles("HeadPitch", 0.0, 0.7)
-    schoolboy.robot.ALMotion.moveTo(forward_distance, 0, 0)
+    if not schoolboy.move(forward_distance, 0):
+        schoolboy.recover_from_move(assumed_angle_to_formula=180)
+        return
+
     schoolboy.robot.ALVisualCompass.moveTo(
             0, 0, theta=math.radians(90 * schoolboy.room_orientation))
 
@@ -20,7 +23,7 @@ def moving_to_person(schoolboy, forward_distance, side_distance):
         if sonar_front > 1.2:
             break
 
-        schoolboy.robot.ALMotion.moveTo(
+        schoolboy.move(
                 0, -0.15 * schoolboy.room_orientation, 0)
 
     schoolboy.robot.ALTextToSpeech.say("Oh hey! There you are!")
@@ -37,9 +40,9 @@ def moving_to_person(schoolboy, forward_distance, side_distance):
         if sonar_front < 0.5:
             break
 
-        schoolboy.robot.ALMotion.moveTo(0.15, 0, 0)
+        schoolboy.move(0.15, 0)
 
-    # schoolboy.robot.ALMotion.moveTo(side_distance, 0, 0)
+    # schoolboy.move(side_distance, 0, 0)
     schoolboy.robot.ALVisualCompass.moveTo(
             0, 0, theta=math.radians(90 * schoolboy.room_orientation))
 

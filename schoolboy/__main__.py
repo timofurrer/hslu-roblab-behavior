@@ -12,7 +12,7 @@ from schoolboy.behaviors.finding_formula import finding_formula
 logging.basicConfig(level=logging.INFO)
 
 #: Holds the name of the Pepper
-PEPPER_NAME = "Amber"
+PEPPER_NAME = "Porter"
 
 
 def main():
@@ -20,7 +20,12 @@ def main():
     robot = Robot(config)
 
     schoolboy = SchoolBoy(robot, room_orientation=SCHOOL_ON_HIS_RIGHT)
-    schoolboy.talk_to_teacher()
+
+    result = schoolboy.robot.ALNavigation.navigateTo(1, 0)
+    print(result)
+    schoolboy.robot.ALMotion.moveTo(1, 0, 0)
+
+    # schoolboy.talk_to_teacher()
 
 
 if __name__ == "__main__":

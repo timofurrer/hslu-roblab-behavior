@@ -30,6 +30,7 @@ Setup a virtual environment for the SchoolBoy App:
 ```
 virtualenv venv2 -p python2.7
 source venv2/bin/activate
+source naoqi_env
 python -m pip install -r requirements.txt
 ```
 
